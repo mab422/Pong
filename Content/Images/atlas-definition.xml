@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas>
+	<Texture>Images/Pong</Texture>
+	<Regions>
+		<Region name="ball" x="0" y="0" width="8" height="8"/>
+		<Region name="player" x="9" y="0" width="8" height="64" />
+		<Region name="computer" x="0" y="9" width="8" height="64" />
+
+	</Regions>
+
+	
+</TextureAtlas>
