@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
+using System.Collections.Generic;
+using Pong.Mechanics;
+using System.Text;
 
 namespace Pong
 
@@ -17,7 +20,9 @@ namespace Pong
         Sprite _computer;
         Sprite _player;
 
-        private int start = 1;
+        
+
+        
         private Vector2 _ballPosition;
         private Vector2 _ballVelocity;
 
@@ -26,10 +31,10 @@ namespace Pong
         private Vector2 _computerPosition;
         private Vector2 _playerPosition;
 
-        private const float PADDLE_SPEED = 4.0f;
-        private const float BALL_SPEED = 14.0f;
+        private const float PADDLE_SPEED = 8.0f;
+        private float BALL_SPEED = 7.0f;
 
-
+        
 
 
         private Tilemap _tilemap;
@@ -37,9 +42,7 @@ namespace Pong
 
         
 
-        //Rectangle _cRect = new Rectangle(9, 588, 8, 64);
-       //Rectangle _pRect = new Rectangle(1262, 588, 8, 64);
-       // Rectangle _ball = new Rectangle(636, 356, 8, 8);
+        
 
 
         public Game1() : base("Pong", 1280, 720, false)
@@ -73,6 +76,7 @@ namespace Pong
             
 
             _playerPosition = new Vector2((_tilemap.Columns * _tilemap.TileWidth) - _tilemap.TileWidth - 40, (_tilemap.TileHeight * centerRow) - 1);
+            
 
             AssignBallVelocity();
             
@@ -97,6 +101,7 @@ namespace Pong
             _tilemap = Tilemap.FromFile(Content, "images/tilemap-definition.xml");
             _tilemap.Scale = new Vector2(4.0f, 4.0f);
 
+            
             
 
         }
@@ -161,13 +166,7 @@ namespace Pong
         
         }
         private void CheckBallBounds() {
-            Rectangle _ballBounds = new Rectangle(
-                (int)_ballPosition.X,
-                (int)_ballPosition.Y,
-                (int)_ball.Width,
-                (int)_ball.Height                
-            );
-
+            
             Rectangle _playerBounds = new Rectangle(
                 (int)_playerPosition.X,
                 (int)_playerPosition.Y,
@@ -182,44 +181,38 @@ namespace Pong
                 (int)_computer.Height
             );
 
-            //Added this to fix the != Zero statement.. otherwise ball would get stuck in a loop... I was too stupid/it was late 
-            int paddleCheck = 0;
+            Circle _ballBounds = new Circle(
+                (int)(_ballPosition.X + _ball.Width * 0.5f), 
+                (int)(_ballPosition.Y + _ball.Height * 0.5f), 
+                (int)(_ball.Width * 0.5f)
+                );
+
+            
 
             Vector2 normal = Vector2.Zero;
+            Vector2 normal2 = Vector2.Zero;
 
             if (_ballBounds.Intersects(_computerBounds))
             {
-                paddleCheck++;
-                normal.X = Vector2.UnitX.X;                
-                _ballVelocity = Vector2.Reflect(_ballVelocity, normal);
+                
+                normal2.X = Vector2.UnitX.X;
+                _ballVelocity = Vector2.Reflect(_ballVelocity, normal2);
                 newBallPosition = _ballPosition + _ballVelocity;
+
+                
             }
-            if (_ballBounds.Intersects(_playerBounds))
+            
+             if (_ballBounds.Intersects(_playerBounds))
             {
-                if (start == 1)
-                {
-                    start = 0;
-                    paddleCheck++;
+                
+                normal2.X = -Vector2.UnitX.X;
+                _ballVelocity = Vector2.Reflect(_ballVelocity, normal2);
+                newBallPosition = _ballPosition + _ballVelocity;
+                
+            } 
 
-                    float angle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
 
-                    float x = (float)Math.Cos(angle);
-                    float y = (float)Math.Sin(angle);
-                    Vector2 direction = new Vector2(x, y);
-
-                    _ballVelocity = direction * BALL_SPEED;
-                    
-                    newBallPosition = _ballPosition + _ballVelocity;
-                }
-                else
-                {
-                    paddleCheck++;
-                    normal.X = -Vector2.UnitX.X;
-                    _ballVelocity = Vector2.Reflect(_ballVelocity, normal);
-                    newBallPosition = _ballPosition + _ballVelocity;
-                }
-            }
-
+            
             if (_ballBounds.Top < _roomBounds.Top) {
                 normal.Y = Vector2.UnitY.Y;
                 newBallPosition.Y = _roomBounds.Top;
@@ -230,20 +223,23 @@ namespace Pong
                 newBallPosition.Y = _roomBounds.Bottom - _ball.Height;
             }
 
-            if (normal != Vector2.Zero && paddleCheck == 0)
+            
+
+
+            if (normal != Vector2.Zero )
             {
 
                 _ballVelocity = Vector2.Reflect(_ballVelocity, normal);
 
             }
-            else if (normal != Vector2.Zero && paddleCheck > 0){
-                paddleCheck = 0;
-            }
+            
+
 
             if (_ballBounds.Left < _roomBounds.Left)
             {
                 int centerRow = _tilemap.Rows / 2;
                 int centerColumn = _tilemap.Columns / 2;
+                
                 newBallPosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
 
             }
@@ -251,6 +247,7 @@ namespace Pong
             {
                 int centerRow = _tilemap.Rows / 2;
                 int centerColumn = _tilemap.Columns / 2;
+                
                 newBallPosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
 
             }
@@ -304,7 +301,7 @@ namespace Pong
         private void AssignBallVelocity()
         {
             // Generate a random angle
-            float angle = (float)(Math.PI * 2);
+            float angle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
 
             // Convert angle to a direction vector
             float x = (float)Math.Cos(angle);
@@ -337,5 +334,7 @@ namespace Pong
 
             base.Draw(gameTime);
         }
+
+        
     }
 }
