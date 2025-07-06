@@ -19,10 +19,12 @@ namespace Pong
         Sprite _ball;
         Sprite _computer;
         Sprite _player;
+        Sprite _power;
 
-        
 
-        
+        private Vector2 _powerPosition;
+
+
         private Vector2 _ballPosition;
         private Vector2 _ballVelocity;
 
@@ -33,6 +35,10 @@ namespace Pong
 
         private const float PADDLE_SPEED = 8.0f;
         private float BALL_SPEED = 7.0f;
+
+        private int timer = 0;
+
+        private int check = 1;
 
         
 
@@ -76,6 +82,8 @@ namespace Pong
             
 
             _playerPosition = new Vector2((_tilemap.Columns * _tilemap.TileWidth) - _tilemap.TileWidth - 40, (_tilemap.TileHeight * centerRow) - 1);
+
+            _powerPosition = new Vector2((centerColumn * _tilemap.TileWidth ) - 20 , (centerRow * _tilemap.TileHeight) - 20);
             
 
             AssignBallVelocity();
@@ -88,6 +96,10 @@ namespace Pong
             base.LoadContent();
             TextureAtlas atlas = TextureAtlas.FromFile(Content, "Images/atlas-definition.xml");
 
+            _power = atlas.CreateSprite("ball");
+            _power.Scale = new Vector2(8.0f, 8.0f);
+            _power.Color = Color.DarkBlue;
+
             _ball = atlas.CreateSprite("ball");
             _ball.Scale = new Vector2(4.0f, 4.0f);
 
@@ -96,6 +108,8 @@ namespace Pong
 
             _computer = atlas.CreateSprite("computer");
             _computer.Scale = new Vector2(4.0f, 4.0f);
+
+            
 
             // Create the tilemap from the XML configuration file.
             _tilemap = Tilemap.FromFile(Content, "images/tilemap-definition.xml");
@@ -126,10 +140,19 @@ namespace Pong
 
             _ballPosition = newBallPosition;
 
+            if (timer == 1)
+            {
+                _ballVelocity /= 1.5f; // Reset the speed to normal
+                _ball.Color = Color.Red;
+            }
+            if (timer > 0) {
+                timer--;
+            }
             
-           
 
-            base.Update(gameTime);
+
+
+                base.Update(gameTime);
         }
 
         private void CheckPaddleBounds() {
@@ -187,7 +210,13 @@ namespace Pong
                 (int)(_ball.Width * 0.5f)
                 );
 
-            
+            Circle _powerBounds = new Circle(
+                (int)(_powerPosition.X + _power.Width * 0.5f),
+                (int)(_powerPosition.Y + _power.Height * 0.5f),
+                (int)(_power.Width * 0.5f)
+            );
+
+
 
             Vector2 normal = Vector2.Zero;
             Vector2 normal2 = Vector2.Zero;
@@ -252,7 +281,15 @@ namespace Pong
 
             }
 
+            if (_ballBounds.Intersects(_powerBounds)) {
 
+                if (check == 1) {
+
+                    AssignPower();
+                    check = 0; // Prevents the power from being assigned multiple times
+                }
+                
+            }
             
 
         }
@@ -312,6 +349,16 @@ namespace Pong
             _ballVelocity = direction * BALL_SPEED;
         }
 
+        private void AssignPower() {
+
+            // Increases the ball speed
+
+            _ballVelocity *= 1.5f; // Increase the speed by 50%
+            timer = 600; // 10 seconds at 60 FPS
+            _ball.Color = Color.Green;
+
+        }
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -322,11 +369,15 @@ namespace Pong
             // Draw the tilemap.
             _tilemap.Draw(SpriteBatch);
 
+            _power.Draw(SpriteBatch, _powerPosition);
+
             _ball.Draw(SpriteBatch, _ballPosition);
 
             _computer.Draw(SpriteBatch, _computerPosition);
 
             _player.Draw(SpriteBatch, _playerPosition);
+
+            
 
             SpriteBatch.End();
 
