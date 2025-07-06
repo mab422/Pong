@@ -39,6 +39,7 @@ namespace Pong
         private int timer = 0;
 
         private int check = 1;
+        private int power = 1; // 1 = active, 0 = inactive
 
         
 
@@ -143,6 +144,8 @@ namespace Pong
             if (timer == 1)
             {
                 _ballVelocity /= 1.5f; // Reset the speed to normal
+                power = 1; // Power Circle is turned active again
+                check = 1; // Allows the power to be assigned again
                 _ball.Color = Color.Red;
             }
             if (timer > 0) {
@@ -287,7 +290,10 @@ namespace Pong
 
                     AssignPower();
                     check = 0; // Prevents the power from being assigned multiple times
+                    power = 0; // Power Circle is turned inactive
                 }
+
+
                 
             }
             
@@ -369,7 +375,12 @@ namespace Pong
             // Draw the tilemap.
             _tilemap.Draw(SpriteBatch);
 
-            _power.Draw(SpriteBatch, _powerPosition);
+            if (power == 1) // If power is active, draw the power sprite
+            {
+                _power.Draw(SpriteBatch, _powerPosition);
+            }
+
+            
 
             _ball.Draw(SpriteBatch, _ballPosition);
 
