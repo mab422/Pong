@@ -38,7 +38,7 @@ namespace Pong
 
         private int timer = 0;
 
-        private int check = 1;
+        private int check = 1; // 1 = power can be assigned, 0 = power cannot be assigned
         private int power = 1; // 1 = active, 0 = inactive
 
         
@@ -84,7 +84,7 @@ namespace Pong
 
             _playerPosition = new Vector2((_tilemap.Columns * _tilemap.TileWidth) - _tilemap.TileWidth - 40, (_tilemap.TileHeight * centerRow) - 1);
 
-            _powerPosition = new Vector2((centerColumn * _tilemap.TileWidth ) - 20 , (centerRow * _tilemap.TileHeight) - 20);
+            SpawnPower();
             
 
             AssignBallVelocity();
@@ -145,6 +145,7 @@ namespace Pong
             {
                 _ballVelocity /= 1.5f; // Reset the speed to normal
                 power = 1; // Power Circle is turned active again
+                SpawnPower(); // ASsigns new power position
                 check = 1; // Allows the power to be assigned again
                 _ball.Color = Color.Red;
             }
@@ -362,6 +363,17 @@ namespace Pong
             _ballVelocity *= 1.5f; // Increase the speed by 50%
             timer = 600; // 10 seconds at 60 FPS
             _ball.Color = Color.Green;
+
+        }
+
+       
+
+        private void SpawnPower() {
+            // Spawns a power circle at a random position within the room bounds
+            Random random = new Random();
+            int x = random.Next(_roomBounds.Left + 20, _roomBounds.Right - 20);
+            int y = random.Next(_roomBounds.Top + 20, _roomBounds.Bottom - 20);
+            _powerPosition = new Vector2(x, y);
 
         }
 
